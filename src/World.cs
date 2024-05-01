@@ -18,7 +18,17 @@ public sealed partial class World : IDisposable
 	private readonly Dictionary<ulong, Query> _cachedQueries = new ();
 	private readonly object _newEntLock = new object();
 	private readonly ConcurrentDictionary<string, EcsID> _namesToEntity = new ();
+	private Tick _tick;
 
+	public Tick Tick
+	{
+		get => _tick;
+	}
+
+	public void AdvanceTick()
+	{
+		_tick.Value++;
+	}
 
     public World(ulong maxComponentId = 256)
     {
