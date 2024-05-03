@@ -184,7 +184,7 @@ public sealed class Archetype
 	internal int Add(EcsID id)
 	{
 		ref var chunk = ref GetChunk(_count);
-		chunk.EntityAt(chunk.Count++) = new(_world, id);
+		chunk.EntityAt(chunk.Count++) = new (_world, id);
 		for (var i = 0; i < chunk.Components.Length; ++i)
 		{
 			chunk.Components[i].AddedTicks[chunk.Count & CHUNK_THRESHOLD] = _world.Tick;
@@ -347,9 +347,7 @@ public sealed class Archetype
 
 		var i = 0;
 		var newNodeTypeLen = newNode.Components.Length;
-		for (; i < newNodeTypeLen && Components[i].ID == newNode.Components[i].ID; ++i)
-		{
-		}
+		for (; i < newNodeTypeLen && Components[i].ID == newNode.Components[i].ID; ++i) { }
 
 		MakeEdges(newNode, this, Components[i].ID);
 	}

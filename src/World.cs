@@ -27,7 +27,9 @@ public sealed partial class World : IDisposable
 
 	public void AdvanceTick()
 	{
+        BeginDeferred();
 		_tick.Value++;
+        EndDeferred();
 	}
 
     public World(ulong maxComponentId = 256)
@@ -262,6 +264,19 @@ public sealed partial class World : IDisposable
 		record.Row = record.Archetype.MoveEntity(newArch!, record.Row);
         record.Archetype = newArch!;
 	}
+
+    private void MarkComponentModified(EcsID entity, EcsID id)
+    {
+        ref var record = ref GetRecord(entity);
+        var oldArch = record.Archetype;
+
+        var index = oldArch.GetComponentIndex(id);
+        if (index < 0)
+        {
+            return; // Should this Assert/Error?
+        }
+        record.GetChunk().Components[index].ChangedTicks[record.Row & Archetype.CHUNK_THRESHOLD] = _tick;
+    }
 
 	private (Array?, int) AttachComponent(EcsID entity, EcsID id, int size)
 	{

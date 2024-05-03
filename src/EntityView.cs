@@ -53,6 +53,21 @@ public readonly struct EntityView : IEquatable<EcsID>, IEquatable<EntityView>
         return this;
     }
 
+    /// <summary>
+    /// Marks the component of type T as modified this tick. This is used to track changes in the component.
+    /// If you modify it directly and do not call this method, the changes will not be tracked for WhenChanged<T> Filters
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <returns>Entity</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly EntityView Modified<T>() where T : struct
+    {
+        World.MarkModified<T>(ID);
+        return this;
+    }
+
+
+
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public readonly EntityView Set(EcsID id)
 	{

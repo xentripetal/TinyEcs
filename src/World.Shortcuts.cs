@@ -39,6 +39,36 @@ public sealed partial class World
 		EndDeferred();
 	}
 
+    public void MarkModified<T>(EcsID entity) where T : struct
+    {
+        ref readonly var cmp = ref Component<T>();
+        EcsAssert.Panic(cmp.Size > 0, "this is not a component");
+
+        if (IsDeferred && !Has(entity, cmp.ID))
+        {
+            MarkModifiedDeferred<T>(entity);
+
+            return;
+        }
+
+        BeginDeferred();
+        MarkComponentModified(entity, cmp.ID);
+        EndDeferred();
+    }
+
+    public void MarkModified(EcsID entity, EcsID id)
+    {
+        if (IsDeferred && !Has(entity, id))
+        {
+            MarkModifiedDeferred(entity, id);
+            return;
+        }
+
+        BeginDeferred();
+        MarkComponentModified(entity, id);
+        EndDeferred();
+    }
+
 	public void Set(EcsID entity, EcsID id)
 	{
 		if (IsDeferred && !Has(entity, id))
@@ -52,6 +82,8 @@ public sealed partial class World
 		_ = AttachComponent(entity, id, 0);
 		EndDeferred();
 	}
+
+
 
     public void Unset<T>(EcsID entity) where T : struct
 		=> Unset(entity, Component<T>().ID);

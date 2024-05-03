@@ -72,6 +72,36 @@ public sealed partial class World
 		return ref Unsafe.Unbox<T>(cmd.Data);
 	}
 
+    private void MarkModifiedDeferred<T>(EcsID entity) where T : struct
+    {
+        ref readonly var cmp = ref Component<T>();
+
+        var cmd = new DeferredOp()
+        {
+            Op = DeferredOpTypes.ModifiedComponent,
+            Entity = entity,
+            Data = null!,
+            ComponentInfo = cmp
+        };
+
+        _operations.Enqueue(cmd);
+    }
+
+    private void MarkModifiedDeferred(EcsID entity, EcsID id)
+    {
+        var cmp = Lookup.GetComponent(id, 0);
+
+        var cmd = new DeferredOp()
+        {
+            Op = DeferredOpTypes.ModifiedComponent,
+            Entity = entity,
+            Data = null!,
+            ComponentInfo = cmp
+        };
+
+        _operations.Enqueue(cmd);
+    }
+
 	private void SetDeferred(EcsID entity, EcsID id)
 	{
 		var cmp = Lookup.GetComponent(id, 0);
@@ -136,7 +166,9 @@ public sealed partial class World
 				case DeferredOpTypes.DestroyEntity:
 					Delete(op.Entity);
 					break;
-
+                case DeferredOpTypes.ModifiedComponent:
+                    MarkComponentModified(op.Entity, op.ComponentInfo.ID);
+                    break;
 				case DeferredOpTypes.SetComponent:
 				{
 					if (op.ComponentInfo.ID.IsPair)
@@ -191,5 +223,6 @@ public sealed partial class World
 		DestroyEntity,
 		SetComponent,
 		UnsetComponent,
+        ModifiedComponent,
 	}
 }

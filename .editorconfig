@@ -7,6 +7,9 @@ indent_size = 4
 insert_final_newline = true
 trim_trailing_whitespace = true
 
+# ReSharper properties
+resharper_csharp_indent_style = space
+
 [*.{json,json5}]
 indent_size = 2
 
@@ -27,3 +30,8 @@ end_of_line = crlf
 
 [*.sh]
 end_of_line = lf
+
+[*.cs]
+indent_style = space
+indent_size = 4
+tab_width = 4

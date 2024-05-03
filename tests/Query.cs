@@ -18,9 +18,26 @@ namespace TinyEcs.Tests
             var done = 0;
             foreach (var arch in ctx.World.Query<FloatComponent>())
             foreach (ref readonly var chunk in arch)
-	            done += chunk.Count;
+                done += chunk.Count;
 
             Assert.Equal(amount, done);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(1000)]
+        [InlineData(10000)]
+        public void Query_AttachOneComponent_WithOneComponent_Each(int amount)
+        {
+            using var ctx = new Context();
+
+            for (var i = 0; i < amount; i++)
+                ctx.World.Set(ctx.World.Entity(), new FloatComponent());
+
+            ctx.World.Query<FloatComponent>().Each((EntityView en, ref FloatComponent c1) => {
+                en.Modified<FloatComponent>();
+            });
+
         }
 
         [Theory]
@@ -135,7 +152,7 @@ namespace TinyEcs.Tests
             var e = ctx.World.Entity();
             ctx.World.Set(e, new FloatComponent());
             ctx.World.Set(e, new IntComponent());
-			good++;
+            good++;
 
             var e2 = ctx.World.Entity();
             ctx.World.Set(e2, new FloatComponent());
@@ -158,33 +175,33 @@ namespace TinyEcs.Tests
             Assert.Equal(good, done);
         }
 
-		[Fact]
-		public void Query_Single()
-		{
-			using var ctx = new Context();
+        [Fact]
+        public void Query_Single()
+        {
+            using var ctx = new Context();
 
-			var singleton = ctx.World.Entity()
-				.Set(new FloatComponent())
-				.Set(new IntComponent())
-				.Set<NormalTag>();
+            var singleton = ctx.World.Entity()
+                .Set(new FloatComponent())
+                .Set(new IntComponent())
+                .Set<NormalTag>();
 
-			var other = ctx.World.Entity()
-				.Set(new FloatComponent())
-				.Set(new IntComponent());
+            var other = ctx.World.Entity()
+                .Set(new FloatComponent())
+                .Set(new IntComponent());
 
-			var result = ctx.World.Query<(With<FloatComponent>, With<IntComponent>, With<NormalTag>)>()
-				.Single();
+            var result = ctx.World.Query<(With<FloatComponent>, With<IntComponent>, With<NormalTag>)>()
+                .Single();
 
-			Assert.Equal(singleton.ID, result.ID);
+            Assert.Equal(singleton.ID, result.ID);
 
-			var singleton2 = ctx.World.Entity()
-				.Set(new FloatComponent())
-				.Set(new IntComponent())
-				.Set<NormalTag>();
+            var singleton2 = ctx.World.Entity()
+                .Set(new FloatComponent())
+                .Set(new IntComponent())
+                .Set<NormalTag>();
 
-			Assert.Throws<Exception>(() =>
-				ctx.World.Query<(With<FloatComponent>, With<IntComponent>, With<NormalTag>)>().Single()
-			);
-		}
+            Assert.Throws<Exception>(() =>
+                ctx.World.Query<(With<FloatComponent>, With<IntComponent>, With<NormalTag>)>().Single()
+            );
+        }
     }
 }
