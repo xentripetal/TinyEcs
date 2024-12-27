@@ -82,6 +82,9 @@ public sealed class Archetype
 
 	internal const int CHUNK_SIZE = 4096;
 	private const int CHUNK_LOG2 = 12;
+	/// <summary>
+	/// Used as a bitflag for clamping indices
+	/// </summary>
 	internal const int CHUNK_THRESHOLD = CHUNK_SIZE - 1;
 
 

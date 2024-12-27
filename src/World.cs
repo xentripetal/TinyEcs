@@ -91,6 +91,11 @@ public sealed partial class World : IDisposable
             return;
 
 		OnComponentUnset?.Invoke(this, entity, new ComponentInfo(id, -1, false));
+		var metadata = Lookup.GetComponentMetadata(id);
+		if (metadata?.Hooks.OnComponentUnset != null && record.Chunk.Data != null) {
+			var idx = record.Archetype.GetComponentIndex(id);
+			metadata.Hooks.OnComponentUnset(this, entity, record.Row, record.Chunk.Data[idx]);
+		}
 
 		BeginDeferred();
 
@@ -150,7 +155,7 @@ public sealed partial class World : IDisposable
 #endif
 	}
 
-	private (Array?, int) Attach(EcsID entity, EcsID id, int size, bool isManaged)
+	private (Array?, int) Attach(EcsID entity, EcsID id, int size, bool isManaged, bool notifyHooks = true)
 	{
 		ref var record = ref GetRecord(entity);
 		var oldArch = record.Archetype;
@@ -197,6 +202,7 @@ public sealed partial class World : IDisposable
 		EndDeferred();
 
 		OnComponentSet?.Invoke(this, entity, new ComponentInfo(id, size, isManaged));
+		// We don't call IComponentHook here since the value hasn't been set yet.
 
 #if USE_PAIR
 		if (id.IsPair())

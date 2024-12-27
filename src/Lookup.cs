@@ -19,12 +19,48 @@ public readonly struct ComponentInfo
     }
 }
 
+/// <summary>
+/// Full record of metadata about a component. Similar to <see cref="ComponentInfo"/> but contains type erased information
+/// that can't be easily created.
+/// </summary>
+public class ComponentMetadata {
+	public ComponentMetadata(ComponentInfo info, Type type, ComponentHooks hooks)
+	{
+		Info = info;
+		Type = type;
+		Hooks = hooks;
+	}
+
+	/// <summary>
+	/// Standard information about the component
+	/// </summary>
+	public readonly ComponentInfo Info;
+
+	/// <summary>
+	/// The <see cref="Type"/> of the component.
+	/// </summary>
+	public readonly Type Type;
+
+	/// <summary>
+	/// Additional hooks that can be defined for a component type. This will be called when this component is added or removed from an entity.
+	/// </summary>
+	public readonly ComponentHooks Hooks;
+}
+
 internal static class Lookup
 {
 	private static int _index = 0;
 
 	private static readonly FastIdLookup<Func<int, Array?>> _arrayCreator = new ();
 	private static readonly FastIdLookup<ComponentInfo> _components = new ();
+	private static readonly FastIdLookup<ComponentMetadata> _componentsMeta = new ();
+
+	public static ComponentMetadata? GetComponentMetadata(EcsID id) {
+		ref var cmp = ref _componentsMeta.TryGet(id, out var exists);
+		if (exists)
+			return cmp;
+		return null;
+	}
 
 	public static Array? GetArray(EcsID hashcode, int count)
 	{
@@ -60,6 +96,7 @@ internal static class Lookup
 	}
 
 
+
 	[SkipLocalsInit]
     internal static class Component<T> where T : struct
 	{
@@ -72,6 +109,20 @@ internal static class Lookup
 		{
 			_arrayCreator.Add(Value.ID, count => Size > 0 ? new T[count] : Array.Empty<T>());
 			_components.Add(Value.ID, Value);
+			_componentsMeta.Add(Value.ID, new(Value, typeof(T), GetHooks()));
+		}
+
+		private static ComponentHooks GetHooks()
+		{
+			if (new T() is IHookedComponent<T> hc)
+			{
+				return new(
+					(world, entity, idx, array) => hc.OnComponentSet(world, entity, ref Unsafe.As<T[]>(array)[idx]),
+					(world, entity, idx, array) => hc.OnComponentUnset(world, entity, Unsafe.As<T[]>(array)[idx])
+				);
+			}
+
+			return new ();
 		}
 
 		private static string GetName()

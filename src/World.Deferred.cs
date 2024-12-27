@@ -139,9 +139,12 @@ public sealed partial class World
 
 				case DeferredOpTypes.SetComponent:
 				{
-					(var array, var row) = Attach(op.Entity, op.ComponentInfo.ID, op.ComponentInfo.Size, op.ComponentInfo.IsManaged);
+					(var array, var row) = Attach(op.Entity, op.ComponentInfo.ID, op.ComponentInfo.Size, op.ComponentInfo.IsManaged, false);
 					array?.SetValue(op.Data, row & TinyEcs.Archetype.CHUNK_THRESHOLD);
-
+					var metadata = Lookup.GetComponentMetadata(op.ComponentInfo.ID);
+					if (metadata?.Hooks.OnComponentAdded != null && array != null) {
+						metadata.Hooks.OnComponentAdded?.Invoke(this, op.Entity, row, array);
+					}
 					break;
 				}
 

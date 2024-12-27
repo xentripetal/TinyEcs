@@ -310,6 +310,9 @@ public sealed partial class World
 			}
 #endif
 
+			foreach (var component in record.Archetype.Components) {
+				Lookup.GetComponentMetadata(component.ID)?.Hooks.OnComponentUnset?.Invoke(this, entity, record.Row, record.Chunk.Data[record.Archetype.GetComponentIndex(component.ID)]);
+			}
 			var removedId = record.Archetype.Remove(ref record);
 			EcsAssert.Assert(removedId == entity);
 			_entities.Remove(removedId);
@@ -407,9 +410,14 @@ public sealed partial class World
 			return;
 		}
 
-        (var raw, var row) = Attach(entity, cmp.ID, cmp.Size, cmp.IsManaged);
+        (var raw, var row) = Attach(entity, cmp.ID, cmp.Size, cmp.IsManaged, false);
         var array = (T[])raw!;
         array[row & TinyEcs.Archetype.CHUNK_THRESHOLD] = component;
+        var metadata = Lookup.GetComponentMetadata(cmp.ID);
+        if (metadata?.Hooks.OnComponentAdded != null) {
+	        metadata.Hooks.OnComponentAdded?.Invoke(this, entity, row, array);
+        }
+
 	}
 
 	/// <summary>
