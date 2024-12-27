@@ -1,4 +1,4 @@
-﻿// namespace TinyEcs.Tests
+// namespace TinyEcs.Tests
 // {
 //     public class Relation
 //     {

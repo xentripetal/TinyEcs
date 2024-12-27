@@ -4,9 +4,9 @@ namespace TinyEcs.Tests
 	{
 		[Theory]
 		[InlineData(10)]
-        [InlineData(4096)]
+		[InlineData(4096)]
 		[InlineData(5000)]
-        [InlineData(4096 * 2)]
+		[InlineData(4096 * 2)]
 		public void Archetype_Check_Linear_Entities_Adding_Only(int amount)
 		{
 			using var ctx = new Context();
@@ -33,9 +33,9 @@ namespace TinyEcs.Tests
 
 		[Theory]
 		[InlineData(10)]
-        [InlineData(4096)]
+		[InlineData(4096)]
 		[InlineData(5000)]
-        [InlineData(4096 * 2)]
+		[InlineData(4096 * 2)]
 		public void Archetype_Check_Linear_Entities_Adding_Removing(int amount)
 		{
 			using var ctx = new Context();

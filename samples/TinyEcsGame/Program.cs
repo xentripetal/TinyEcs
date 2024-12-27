@@ -186,44 +186,46 @@ struct WindowSize
 
 struct Position
 {
-    public Vector2 Value;
+	public Vector2 Value;
 }
 
 struct Velocity
 {
-    public Vector2 Value;
+	public Vector2 Value;
 }
 
 struct Sprite
 {
-    public Color Color;
-    public float Scale;
+	public Color Color;
+	public float Scale;
 	public uint Texture;
-    //public Texture2D Texture;
+	//public Texture2D Texture;
 }
 
 struct Rotation
 {
-    public float Value;
-    public float Acceleration;
+	public float Value;
+	public float Acceleration;
 }
 
 readonly struct RaylibPlugin : IPlugin
 {
 	public readonly void Build(Scheduler scheduler)
 	{
-		scheduler.AddSystem((Res<Input> input) => {
+		scheduler.AddSystem((Res<Input> input) =>
+		{
 			foreach (ref var v in input.Value)
 				v = KeyboardKey.Null;
 
 			var key = Raylib.GetKeyPressed();
 			while (key != 0)
 			{
-				input.Value[key] = (KeyboardKey) key;
+				input.Value[key] = (KeyboardKey)key;
 				key = Raylib.GetKeyPressed();
 			}
 		});
-		scheduler.AddSystem((Res<Input> input) => {
+		scheduler.AddSystem((Res<Input> input) =>
+		{
 			if (input.Value[(int)KeyboardKey.A] == KeyboardKey.A)
 			{
 				Console.WriteLine("pressed {0}", KeyboardKey.A);

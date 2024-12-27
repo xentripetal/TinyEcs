@@ -15,7 +15,7 @@ for (int i = 0; i < ENTITIES_COUNT; i++)
 		.Set<Position>(new Position())
 		.Set<Velocity>(new Velocity());
 
-scheduler.AddSystem((Query<Data<Position, Velocity>> q)=>
+scheduler.AddSystem((Query<Data<Position, Velocity>> q) =>
 {
 	foreach ((var pos, var vel) in q)
 	{

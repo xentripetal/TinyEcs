@@ -157,8 +157,8 @@ public sealed class Archetype
 #endif
 
 		_ids = All.Select(s => s.ID).ToArray();
-		_add = new ();
-		_remove = new ();
+		_add = new();
+		_remove = new();
 	}
 
 
@@ -489,15 +489,15 @@ public sealed class Archetype
 	}
 
 	public void Print(int depth)
-    {
-        Console.WriteLine(new string(' ', depth * 2) + $"Node: [{string.Join(", ", All.Select(s => s.ID))}]");
+	{
+		Console.WriteLine(new string(' ', depth * 2) + $"Node: [{string.Join(", ", All.Select(s => s.ID))}]");
 
-        foreach (ref var edge in CollectionsMarshal.AsSpan(_add))
-        {
-            Console.WriteLine(new string(' ', (depth + 1) * 2) + $"Edge: {edge.Id}");
-            edge.Archetype.Print(depth + 2);
-        }
-    }
+		foreach (ref var edge in CollectionsMarshal.AsSpan(_add))
+		{
+			Console.WriteLine(new string(' ', (depth + 1) * 2) + $"Edge: {edge.Id}");
+			edge.Archetype.Print(depth + 2);
+		}
+	}
 
 	internal sealed class RawArrayData
 	{

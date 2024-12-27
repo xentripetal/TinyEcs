@@ -1,73 +1,73 @@
-﻿namespace TinyEcs.Tests
+namespace TinyEcs.Tests
 {
-    public class SparseSetTest
-    {
-        [Theory]
-        [InlineData(100)]
-        public void SparseSet_Add(int amount)
-        {
-            var set = new EntitySparseSet<float>();
+	public class SparseSetTest
+	{
+		[Theory]
+		[InlineData(100)]
+		public void SparseSet_Add(int amount)
+		{
+			var set = new EntitySparseSet<float>();
 
-            for (var i = 0; i < amount; i++)
-            {
-                ref var cmp = ref set.CreateNew(out var id);
-                cmp = 123f + i;
+			for (var i = 0; i < amount; i++)
+			{
+				ref var cmp = ref set.CreateNew(out var id);
+				cmp = 123f + i;
 
-                Assert.True(set.Contains(id));
-                Assert.Equal(cmp, set.Get(id));
-            }
+				Assert.True(set.Contains(id));
+				Assert.Equal(cmp, set.Get(id));
+			}
 
-            Assert.Equal(amount, set.Length);
-        }
+			Assert.Equal(amount, set.Length);
+		}
 
-        [Fact]
-        public void SparseSet_Recycle()
-        {
-            var set = new EntitySparseSet<ComponentInfo>();
-            int count = 1000;
-            var genCount = 100;
-            var ids = new List<ulong>();
+		[Fact]
+		public void SparseSet_Recycle()
+		{
+			var set = new EntitySparseSet<ComponentInfo>();
+			int count = 1000;
+			var genCount = 100;
+			var ids = new List<ulong>();
 
-            for (int gen = 0; gen < genCount; gen++)
-            {
-                ids.Clear();
+			for (int gen = 0; gen < genCount; gen++)
+			{
+				ids.Clear();
 
-                for (int i = 0; i < count; i++)
-                {
-                    set.CreateNew(out var id);
-                    ids.Add(id);
+				for (int i = 0; i < count; i++)
+				{
+					set.CreateNew(out var id);
+					ids.Add(id);
 
-                    var curGen = IDOp.GetGeneration(id);
-                    Assert.Equal(gen, (int)(ulong)curGen);
-                }
+					var curGen = IDOp.GetGeneration(id);
+					Assert.Equal(gen, (int)(ulong)curGen);
+				}
 
-                foreach (var id in ids)
-                {
-                    set.Remove(id);
-                }
-            }
-        }
+				foreach (var id in ids)
+				{
+					set.Remove(id);
+				}
+			}
+		}
 
-        [Theory]
-        [InlineData(1)]
-        [InlineData(1000)]
-        [InlineData(10_000)]
-        public void SparseSet_CheckSequence(int amount)
-        {
-            //var set = new EntitySparseSet<EcsComponent>();
+		[Theory]
+		[InlineData(1)]
+		[InlineData(1000)]
+		[InlineData(10_000)]
+		public void SparseSet_CheckSequence()
+		{
+			//var set = new EntitySparseSet<EcsComponent>();
 
-            //var i = 0;
-            //ulong last = 1;
+			//var i = 0;
+			//ulong last = 1;
 
-            //do
-            //{
-            //    set.CreateNew(out var id);
-            //    var genHi = id & EcsConst.ECS_GENERATION_MASK;
-            //    Assert.Equal(id - genHi, last - genHi);
-            //    set.Remove(id);
-            //    IDOp.IncreaseGeneration(ref last);
+			//do
+			//{
+			//    set.CreateNew(out var id);
+			//    var genHi = id & EcsConst.ECS_GENERATION_MASK;
+			//    Assert.Equal(id - genHi, last - genHi);
+			//    set.Remove(id);
+			//    IDOp.IncreaseGeneration(ref last);
 
-            //} while (i++ < amount);
-        }
-    }
+			//} while (i++ < amount);
+		}
+	}
 }

@@ -7,23 +7,24 @@ namespace TinyEcs;
 [DebuggerDisplay("ID: {ID}, Size: {Size}, IsManaged: {IsManaged}")]
 public readonly struct ComponentInfo
 {
-    public readonly EcsID ID;
-    public readonly int Size;
-    public readonly bool IsManaged;
+	public readonly EcsID ID;
+	public readonly int Size;
+	public readonly bool IsManaged;
 
-    internal ComponentInfo(EcsID id, int size, bool isManaged)
-    {
-        ID = id;
-        Size = size;
-        IsManaged = isManaged;
-    }
+	internal ComponentInfo(EcsID id, int size, bool isManaged)
+	{
+		ID = id;
+		Size = size;
+		IsManaged = isManaged;
+	}
 }
 
 /// <summary>
 /// Full record of metadata about a component. Similar to <see cref="ComponentInfo"/> but contains type erased information
 /// that can't be easily created.
 /// </summary>
-public class ComponentMetadata {
+public class ComponentMetadata
+{
 	public ComponentMetadata(ComponentInfo info, Type type, ComponentHooks hooks)
 	{
 		Info = info;
@@ -51,11 +52,12 @@ internal static class Lookup
 {
 	private static int _index = 0;
 
-	private static readonly FastIdLookup<Func<int, Array?>> _arrayCreator = new ();
-	private static readonly FastIdLookup<ComponentInfo> _components = new ();
-	private static readonly FastIdLookup<ComponentMetadata> _componentsMeta = new ();
+	private static readonly FastIdLookup<Func<int, Array?>> _arrayCreator = new();
+	private static readonly FastIdLookup<ComponentInfo> _components = new();
+	private static readonly FastIdLookup<ComponentMetadata> _componentsMeta = new();
 
-	public static ComponentMetadata? GetComponentMetadata(EcsID id) {
+	public static ComponentMetadata? GetComponentMetadata(EcsID id)
+	{
 		ref var cmp = ref _componentsMeta.TryGet(id, out var exists);
 		if (exists)
 			return cmp;
@@ -98,12 +100,12 @@ internal static class Lookup
 
 
 	[SkipLocalsInit]
-    internal static class Component<T> where T : struct
+	internal static class Component<T> where T : struct
 	{
-        public static readonly int Size = GetSize();
-        public static readonly string Name = GetName();
-        public static readonly ulong HashCode = (ulong)System.Threading.Interlocked.Increment(ref _index);
-		public static readonly ComponentInfo Value = new (HashCode, Size, RuntimeHelpers.IsReferenceOrContainsReferences<T>());
+		public static readonly int Size = GetSize();
+		public static readonly string Name = GetName();
+		public static readonly ulong HashCode = (ulong)System.Threading.Interlocked.Increment(ref _index);
+		public static readonly ComponentInfo Value = new(HashCode, Size, RuntimeHelpers.IsReferenceOrContainsReferences<T>());
 
 		static Component()
 		{
@@ -122,7 +124,7 @@ internal static class Lookup
 				);
 			}
 
-			return new ();
+			return new();
 		}
 
 		private static string GetName()
@@ -133,7 +135,7 @@ internal static class Lookup
 
 			var indexOf = name.LastIndexOf('.');
 			if (indexOf >= 0)
-				name = name[(indexOf + 1) ..];
+				name = name[(indexOf + 1)..];
 
 			return name;
 		}
@@ -153,7 +155,7 @@ internal static class Lookup
 
 			return ValueType.Equals(t1, t2) ? 0 : size;
 		}
-    }
+	}
 }
 
 internal sealed class FastIdLookup<TValue>
@@ -206,118 +208,118 @@ internal sealed class FastIdLookup<TValue>
 	// 	_slowLookup.Clear();
 	// }
 
-    private const int COMPONENT_MAX_ID = 1024;
+	private const int COMPONENT_MAX_ID = 1024;
 
 #if NET
-    private readonly Dictionary<ulong, TValue> _slowLookup = new();
+	private readonly Dictionary<ulong, TValue> _slowLookup = new();
 #else
     private readonly DictionarySlim<ulong, TValue> _slowLookup = new();
 #endif
-    private readonly TValue[] _fastLookup = new TValue[COMPONENT_MAX_ID];
-    private readonly bool[] _fastLookupAdded = new bool[COMPONENT_MAX_ID];
+	private readonly TValue[] _fastLookup = new TValue[COMPONENT_MAX_ID];
+	private readonly bool[] _fastLookupAdded = new bool[COMPONENT_MAX_ID];
 
-    public int Count => _slowLookup.Count + CountFastLookup();
+	public int Count => _slowLookup.Count + CountFastLookup();
 
-    public void Add(ulong id, TValue value)
-    {
-        if (id < (ulong)COMPONENT_MAX_ID)
-        {
-            _fastLookup[id] = value;
-            _fastLookupAdded[id] = true;
-        }
-        else
-        {
+	public void Add(ulong id, TValue value)
+	{
+		if (id < (ulong)COMPONENT_MAX_ID)
+		{
+			_fastLookup[id] = value;
+			_fastLookupAdded[id] = true;
+		}
+		else
+		{
 #if NET
-            CollectionsMarshal.GetValueRefOrAddDefault(_slowLookup, id, out _) = value;
+			CollectionsMarshal.GetValueRefOrAddDefault(_slowLookup, id, out _) = value;
 #else
             _slowLookup.GetOrAddValueRef(id, out _) = value;
 #endif
-        }
-    }
+		}
+	}
 
-    public ref TValue GetOrCreate(ulong id, out bool exists)
-    {
-        if (id < (ulong)COMPONENT_MAX_ID)
-        {
-            if (_fastLookupAdded[id])
-            {
-                exists = true;
-                return ref _fastLookup[id];
-            }
+	public ref TValue GetOrCreate(ulong id, out bool exists)
+	{
+		if (id < (ulong)COMPONENT_MAX_ID)
+		{
+			if (_fastLookupAdded[id])
+			{
+				exists = true;
+				return ref _fastLookup[id];
+			}
 
-            exists = false;
-            return ref AddToFast(id);
-        }
+			exists = false;
+			return ref AddToFast(id);
+		}
 
 #if NET
-        ref var val = ref CollectionsMarshal.GetValueRefOrAddDefault(_slowLookup, id, out exists);
+		ref var val = ref CollectionsMarshal.GetValueRefOrAddDefault(_slowLookup, id, out exists);
 #else
         ref var val = ref _slowLookup.GetOrAddValueRef(id, out exists)!;
 #endif
 
-        return ref val;
-    }
+		return ref val;
+	}
 
 
-    public ref TValue TryGet(ulong id, out bool exists)
-    {
-        if (id < (ulong)COMPONENT_MAX_ID)
-        {
-            if (_fastLookupAdded[id])
-            {
-                exists = true;
-                return ref _fastLookup[id];
-            }
+	public ref TValue TryGet(ulong id, out bool exists)
+	{
+		if (id < (ulong)COMPONENT_MAX_ID)
+		{
+			if (_fastLookupAdded[id])
+			{
+				exists = true;
+				return ref _fastLookup[id];
+			}
 
-            exists = false;
-            return ref Unsafe.NullRef<TValue>();
-        }
+			exists = false;
+			return ref Unsafe.NullRef<TValue>();
+		}
 
 #if NET
-        ref var val = ref CollectionsMarshal.GetValueRefOrNullRef(_slowLookup, id);
-        exists = !Unsafe.IsNullRef(ref val);
-        return ref val;
+		ref var val = ref CollectionsMarshal.GetValueRefOrNullRef(_slowLookup, id);
+		exists = !Unsafe.IsNullRef(ref val);
+		return ref val;
 #else
         return ref _slowLookup.GetOrNullRef(id, out exists);
 #endif
-    }
+	}
 
-    public void Clear()
-    {
-        Array.Clear(_fastLookup, 0, _fastLookup.Length);
-        Array.Fill(_fastLookupAdded, false);
-        _slowLookup.Clear();
-    }
+	public void Clear()
+	{
+		Array.Clear(_fastLookup, 0, _fastLookup.Length);
+		Array.Fill(_fastLookupAdded, false);
+		_slowLookup.Clear();
+	}
 
 
-    private ref TValue AddToFast(ulong id)
-    {
-        ref var value = ref _fastLookup[id];
-        _fastLookupAdded[id] = true;
-        return ref value;
-    }
+	private ref TValue AddToFast(ulong id)
+	{
+		ref var value = ref _fastLookup[id];
+		_fastLookupAdded[id] = true;
+		return ref value;
+	}
 
-    private int CountFastLookup()
-    {
-        int count = 0;
-        for (int i = 0; i < _fastLookupAdded.Length; i++)
-        {
-            if (_fastLookupAdded[i])
-                count++;
-        }
-        return count;
-    }
+	private int CountFastLookup()
+	{
+		int count = 0;
+		for (int i = 0; i < _fastLookupAdded.Length; i++)
+		{
+			if (_fastLookupAdded[i])
+				count++;
+		}
+		return count;
+	}
 
-    public IEnumerator<KeyValuePair<ulong, TValue>> GetEnumerator()
-    {
-        foreach (var pair in _slowLookup)
-            yield return pair;
+	public IEnumerator<KeyValuePair<ulong, TValue>> GetEnumerator()
+	{
+		foreach (var pair in _slowLookup)
+			yield return pair;
 
-        for (ulong i = 0; i < (ulong)COMPONENT_MAX_ID; i++)
-        {
-            if (_fastLookupAdded[i])
-                yield return new KeyValuePair<ulong, TValue>(i, _fastLookup[i]);
-        }
-    }
+		for (ulong i = 0; i < (ulong)COMPONENT_MAX_ID; i++)
+		{
+			if (_fastLookupAdded[i])
+				yield return new KeyValuePair<ulong, TValue>(i, _fastLookup[i]);
+		}
+	}
 }
 

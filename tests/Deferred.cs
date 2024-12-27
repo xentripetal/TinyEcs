@@ -1,7 +1,7 @@
 namespace TinyEcs.Tests
 {
-    public class DeferredTest
-    {
+	public class DeferredTest
+	{
 		struct JustForTest { }
 
 		[Fact]
@@ -14,10 +14,10 @@ namespace TinyEcs.Tests
 			Assert.False(ctx.World.IsDeferred);
 		}
 
-        [Fact]
-        public void Deferred_NewEntity()
-        {
-            using var ctx = new Context();
+		[Fact]
+		public void Deferred_NewEntity()
+		{
+			using var ctx = new Context();
 
 			var count = ctx.World.EntityCount;
 
@@ -36,7 +36,7 @@ namespace TinyEcs.Tests
 			Assert.True(e2.Exists());
 
 			Assert.Equal(count + 3, ctx.World.EntityCount);
-        }
+		}
 
 		[Fact]
 		public void Deferred_DeleteEntity()
@@ -180,5 +180,5 @@ namespace TinyEcs.Tests
 			Assert.Equal(5f, entity.Get<FloatComponent>().Value);
 			Assert.Equal(5, entity.Get<IntComponent>().Value);
 		}
-    }
+	}
 }

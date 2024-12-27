@@ -129,7 +129,7 @@ public sealed class RelationshipEntityMapper : EntityMapper<Parent, Children>
 
 public sealed class NamingEntityMapper
 {
-	private readonly Dictionary<string, EcsID> _names = new ();
+	private readonly Dictionary<string, EcsID> _names = new();
 	private readonly Dictionary<EcsID, string> _entitiesWithName = new();
 	private readonly World _world;
 

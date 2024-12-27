@@ -94,7 +94,7 @@ public sealed class Query
 	private ulong _lastArchetypeIdMatched = 0;
 	private readonly int[] _indices;
 
-	internal Query(World world, ReadOnlySpan<IQueryTerm> terms) : this (world, terms.ToImmutableArray())
+	internal Query(World world, ReadOnlySpan<IQueryTerm> terms) : this(world, terms.ToImmutableArray())
 	{
 
 	}

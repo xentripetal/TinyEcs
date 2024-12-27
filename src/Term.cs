@@ -50,10 +50,10 @@ public enum TermOp : byte
 {
 	DataAccess,
 	With,
-    Without,
-    Optional,
-    AtLeastOne,
-    Exactly,
-    None,
+	Without,
+	Optional,
+	AtLeastOne,
+	Exactly,
+	None,
 	Or
 }

@@ -31,5 +31,5 @@ public static class EcsIdEx
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static int Generation(this EcsID id)
-		=> (int) IDOp.GetGeneration(id);
+		=> (int)IDOp.GetGeneration(id);
 }

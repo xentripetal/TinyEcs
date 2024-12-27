@@ -182,7 +182,8 @@ public sealed partial class Scheduler
 
 	public FuncSystem<World> AddSystem(Action system, Stages stage = Stages.Update, ThreadingMode threadingType = ThreadingMode.Auto)
 	{
-		var sys = new FuncSystem<World>(_world, (args, runIf) => {
+		var sys = new FuncSystem<World>(_world, (args, runIf) =>
+		{
 			if (runIf?.Invoke(args) ?? true)
 				system();
 		}, () => false, threadingType);
